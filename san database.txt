@@ -1,0 +1,34 @@
+import Candid;
+
+// Define a simple key-value store interface
+type KeyValueStore = actor {
+  put : (Text, Text) -> async (),
+  get : (Text) -> async ?Text
+};
+
+// Create a new database canister
+public shared (msg) func createDatabase() : async KeyValueStore {
+  let dbCanisterId = await create_canister({});
+  let dbCanister = actor KeyValueStore(dbCanisterId);
+  return dbCanister;
+}
+
+// Usage example
+public shared (msg) func main() : async {
+  // Create the database canister
+  let db = await createDatabase();
+
+  // Use the database
+  await db.put("key1", "value1");
+  let value = await db.get("key1");
+
+  // Print the retrieved value
+  switch (value) {
+    case (?v) {
+      Debug.print("Retrieved value:", v);
+    }
+    else {
+      Debug.print("Value not found.");
+    }
+  }
+}
